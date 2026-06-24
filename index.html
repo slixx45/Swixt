@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swixt Browser — Download</title>
+  <meta name="description" content="Swixt Browser — Der moderne, datenschutzfreundliche Browser mit Tracker-Blocking und Premium-Design." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══ RESET & ROOT ═══ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #7c6af7;
+      --accent2: #a78bfa;
+      --glow: rgba(124,106,247,0.35);
+      --glow2: rgba(124,106,247,0.12);
+      --bg: #09090f;
+      --bg2: #0f0f18;
+      --surface: #13131e;
+      --elevated: #1a1a28;
+      --border: rgba(255,255,255,0.07);
+      --t1: #f0f0f8;
+      --t2: #8b8ba8;
+      --t3: #3f3f5a;
+      --success: #34d399;
+      --font: 'Inter', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--t1);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+    /* ═══ CANVAS STARS ═══ */
+    #canvas-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ═══ NOISE OVERLAY ═══ */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 1;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    /* ═══ NAVBAR ═══ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(9,9,15,0.7);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      animation: slideDown 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 18px; font-weight: 700; letter-spacing: -0.5px;
+      color: var(--t1); text-decoration: none;
+    }
+    .nav-logo-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 2px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 800;
+      box-shadow: 0 0 16px var(--glow);
+      background: var(--glow2);
+      color: var(--accent2);
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--t2); text-decoration: none; font-size: 14px;
+      font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--t1); }
+    .nav-dl-btn {
+      padding: 8px 20px; border-radius: 999px;
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 0 20px var(--glow);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .nav-dl-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--glow); }
+
+    /* ═══ HERO ═══ */
+    .hero {
+      position: relative; z-index: 2;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 120px 24px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    /* Gradient orbs */
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); pointer-events: none; z-index: -1;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,106,247,0.2) 0%, transparent 70%);
+      top: -100px; left: 50%; transform: translateX(-50%);
+      animation: floatOrb1 8s ease-in-out infinite;
+    }
+    .orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(167,139,250,0.1) 0%, transparent 70%);
+      bottom: 0; right: -100px;
+      animation: floatOrb2 10s ease-in-out infinite;
+    }
+    .orb-3 {
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+      top: 30%; left: -100px;
+      animation: floatOrb3 12s ease-in-out infinite;
+    }
+    @keyframes floatOrb1 { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-40px)} }
+    @keyframes floatOrb2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-30px)} }
+    @keyframes floatOrb3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(25px)} }
+
+    /* Hero badge */
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 999px;
+      background: var(--glow2);
+      border: 1px solid rgba(124,106,247,0.3);
+      font-size: 12px; font-weight: 600; color: var(--accent2);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 32px;
+      animation: fadeUp 1s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Hero logo */
+    .hero-logo-wrap {
+      position: relative;
+      width: 120px; height: 120px;
+      margin: 0 auto 40px;
+      animation: fadeUp 1s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .hero-logo-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 40px var(--glow), inset 0 0 40px var(--glow2);
+      animation: pulse 3s ease-in-out infinite;
+    }
+    .hero-logo-ring-2 {
+      position: absolute; inset: -12px; border-radius: 50%;
+      border: 1px solid rgba(124,106,247,0.2);
+      animation: pulse 3s 1s ease-in-out infinite;
+    }
+    .hero-logo-ring-3 {
+      position: absolute; inset: -24px; border-radius: 50%;
+      border: 1px solid rgba(124,106,247,0.1);
+      animation: pulse 3s 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 40px var(--glow), inset 0 0 40px var(--glow2); }
+      50%      { box-shadow: 0 0 70px rgba(124,106,247,0.5), inset 0 0 60px rgba(124,106,247,0.2); }
+    }
+    .hero-logo-inner {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%, rgba(124,106,247,0.2), transparent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; font-weight: 800; color: var(--t1);
+      letter-spacing: -2px;
+    }
+
+    /* Hero heading */
+    .hero-title {
+      font-size: clamp(48px, 7vw, 88px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+      animation: fadeUp 1s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .hero-title .line-1 { display: block; color: var(--t1); }
+    .hero-title .line-2 {
+      display: block;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 18px; font-weight: 300; color: var(--t2);
+      max-width: 560px; line-height: 1.7;
+      margin: 0 auto 56px;
+      animation: fadeUp 1s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    /* Download buttons */
+    .dl-buttons {
+      display: flex; align-items: center; justify-content: center;
+      gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 1s 0.6s cubic-bezier(0.16,1,0.3,1) both;
+      margin-bottom: 80px;
+    }
+
+    .dl-btn {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 28px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-family: var(--font);
+      cursor: pointer;
+      border: none;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .dl-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .dl-btn:hover::before { opacity: 1; }
+    .dl-btn:hover { transform: translateY(-4px) scale(1.02); }
+    .dl-btn:active { transform: scale(0.97) translateY(0); }
+
+    .dl-btn.primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #6d5ce7 100%);
+      box-shadow: 0 8px 32px var(--glow), 0 0 0 1px rgba(124,106,247,0.5);
+      color: #fff;
+    }
+    .dl-btn.primary:hover { box-shadow: 0 16px 48px rgba(124,106,247,0.5), 0 0 0 1px rgba(124,106,247,0.8); }
+
+    .dl-btn.secondary {
+      background: var(--elevated);
+      border: 1px solid var(--border);
+      color: var(--t1);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+    .dl-btn.secondary:hover { border-color: rgba(124,106,247,0.4); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+
+    .dl-btn-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .dl-btn.primary .dl-btn-icon { background: rgba(255,255,255,0.15); }
+    .dl-btn.secondary .dl-btn-icon { background: rgba(255,255,255,0.05); }
+    .dl-btn-icon svg { width: 22px; height: 22px; fill: currentColor; }
+
+    .dl-btn-text { text-align: left; }
+    .dl-btn-label { font-size: 11px; opacity: 0.7; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+    .dl-btn-name  { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; margin-top: 1px; }
+    .dl-btn-size  { font-size: 11px; opacity: 0.5; margin-top: 2px; }
+
+    /* OS auto-detected label */
+    .os-hint {
+      font-size: 12px; color: var(--t3); margin-top: -60px; margin-bottom: 72px;
+      animation: fadeUp 1s 0.75s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .os-hint span { color: var(--accent2); font-weight: 500; }
+
+    /* Hero stats */
+    .hero-stats {
+      display: flex; align-items: center; gap: 48px;
+      padding: 24px 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      animation: fadeUp 1s 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 32px; font-weight: 800; letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 12px; color: var(--t3); margin-top: 4px; font-weight: 500; }
+    .stat-divider { width: 1px; height: 40px; background: var(--border); }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--t3); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      animation: fadeIn 1s 1.5s both;
+    }
+    .scroll-hint svg { animation: bounce 2s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ═══ FEATURES ═══ */
+    .section {
+      position: relative; z-index: 2;
+      padding: 120px 24px 140px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      text-align: center; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.8s, transform 0.8s;
+    }
+    .section-title {
+      text-align: center; font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800; letter-spacing: -2px; line-height: 1.1;
+      margin-bottom: 16px;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.8s 0.1s, transform 0.8s 0.1s;
+    }
+    .section-sub {
+      text-align: center; font-size: 17px; color: var(--t2);
+      max-width: 520px; margin: 0 auto 72px;
+      line-height: 1.7; font-weight: 300;
+      opacity: 0; transform: translateY(20px);
+      transition: opacity 0.8s 0.2s, transform 0.8s 0.2s;
+    }
+    .section-label.visible,
+    .section-title.visible,
+    .section-sub.visible { opacity: 1; transform: translateY(0); }
+
+    /* Feature grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative; overflow: hidden;
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.7s, transform 0.7s, border-color 0.3s, box-shadow 0.3s;
+      cursor: default;
+    }
+    .feature-card:hover {
+      border-color: rgba(124,106,247,0.3);
+      box-shadow: 0 8px 40px rgba(124,106,247,0.1);
+    }
+    .feature-card::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card.visible { opacity: 1; transform: translateY(0); }
+
+    .feature-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: var(--glow2);
+      border: 1px solid rgba(124,106,247,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px var(--glow2);
+      color: var(--accent2);
+    }
+    .feature-icon svg {
+      width: 24px; height: 24px; fill: currentColor;
+    }
+    .feature-name {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.3px;
+      margin-bottom: 10px; color: var(--t1);
+    }
+    .feature-desc {
+      font-size: 14px; color: var(--t2); line-height: 1.7;
+    }
+
+    .dl-note-bottom {
+      text-align: center;
+      font-size: 12px; color: var(--t3); line-height: 1.8;
+      margin-top: 48px;
+    }
+    .dl-note-bottom code { background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--t2); }
+
+    /* ═══ FOOTER ═══ */
+    footer {
+      position: relative; z-index: 2;
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--t3); font-size: 13px;
+    }
+    footer a { color: var(--t2); text-decoration: none; }
+    footer a:hover { color: var(--accent2); }
+
+    /* ═══ MOBILE ═══ */
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .hero-stats { flex-direction: column; gap: 20px; padding: 24px; }
+      .stat-divider { width: 40px; height: 1px; }
+      .dl-buttons { flex-direction: column; align-items: stretch; max-width: 320px; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-icon">SX</div>
+    Swixt
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#download">Download</a></li>
+  </ul>
+  <a href="#download" class="nav-dl-btn">Download</a>
+</nav>
+
+<section class="hero" id="download">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="hero-badge">Version 1.0.0 — Jetzt verfügbar</div>
+
+  <div class="hero-logo-wrap">
+    <div class="hero-logo-ring-3"></div>
+    <div class="hero-logo-ring-2"></div>
+    <div class="hero-logo-ring"></div>
+    <div class="hero-logo-inner">SX</div>
+  </div>
+
+  <h1 class="hero-title">
+    <span class="line-1">Dein Browser.</span>
+    <span class="line-2">Neu definiert.</span>
+  </h1>
+
+  <p class="hero-sub">
+    Swixt Browser — blitzschnell, werbefrei und mit über 50 Tracker-Blockern.
+    Designed für Menschen, die das Web respektvoll erleben wollen.
+  </p>
+
+  <div class="dl-buttons">
+    <a href="Swixt.exe" class="dl-btn primary" id="btn-win">
+      <div class="dl-btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+      </div>
+      <div class="dl-btn-text">
+        <div class="dl-btn-label">Für Windows</div>
+        <div class="dl-btn-name">Setup herunterladen</div>
+        <div class="dl-btn-size">73 MB · .exe Installer</div>
+      </div>
+    </a>
+    <a href="Swixt.AppImage" class="dl-btn secondary" id="btn-linux">
+      <div class="dl-btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.988.892-1.584.236-.384-.42-.818-.478-1.272-.125-.952-.033 1.82.244 2.612.215.6.49 1.12.86 1.568-.11.223-.224.455-.327.69-.076.163-.156.335-.227.521-.07.186-.122.384-.154.585-.03.2-.043.41-.038.615.011.454.088.89.239 1.298.227.612.572 1.148 1.015 1.585.44.436.974.782 1.573 1.015 1.105.433 2.318.522 3.484.222.57-.14 1.103-.355 1.615-.638.334-.19.66-.396.99-.596.304-.19.604-.37.918-.526.625-.308 1.285-.52 1.97-.658.68-.137 1.397-.194 2.12-.167.728.027 1.46.131 2.175.315.73.185 1.424.45 2.07.792.307.16.605.328.897.485.297.16.59.31.887.447.595.278 1.215.496 1.85.635 1.174.247 2.39.178 3.528-.238.609-.221 1.162-.538 1.637-.95.47-.408.864-.9 1.143-1.46.286-.567.45-1.19.475-1.827.02-.625-.1-1.253-.357-1.826a4.357 4.357 0 00-.98-1.398c-.2-.182-.41-.338-.624-.472.186-.355.33-.731.422-1.119a5.22 5.22 0 00.06-1.695c-.175-1.138-.71-2.17-1.517-2.989-.794-.808-1.834-1.402-2.978-1.699-.566-.147-1.152-.218-1.74-.208-.578.01-1.153.103-1.706.278a7.026 7.026 0 00-1.606.747l-.006.004a.08.08 0 01-.02-.008c-.236-.091-.474-.176-.715-.254a9.3 9.3 0 00-1.508-.33 9.13 9.13 0 00-1.55-.05c-.51.025-1.017.093-1.51.206-.73.167-1.43.43-2.075.783-.648.354-1.226.798-1.708 1.323-.987 1.085-1.543 2.495-1.582 3.959-.02.716.07 1.429.267 2.115.197.686.49 1.34.872 1.94.38.598.843 1.143 1.372 1.616.525.47 1.113.874 1.744 1.193.63.32 1.297.556 1.98.705.68.15 1.374.208 2.064.175.689-.033 1.37-.165 2.023-.392a8.59 8.59 0 001.83-.924c.57-.385 1.07-.84 1.49-1.357.42-.517.745-1.094.96-1.714.216-.62.322-1.278.313-1.94-.01-.662-.136-1.32-.375-1.937a6.64 6.64 0 00-.972-1.716c-.407-.521-.888-.984-1.43-1.378a7.95 7.95 0 00-1.813-.934 8.48 8.48 0 00-1.99-.428 8.4 8.4 0 00-2.027.04 8.18 8.18 0 00-1.942.513 7.875 7.875 0 00-1.74.978c-.527.388-.994.843-1.387 1.352-.39.508-.703 1.073-.927 1.676-.224.603-.357 1.24-.392 1.885-.036.645.026 1.296.186 1.927.159.628.414 1.237.756 1.797.34.56.768 1.063 1.27 1.496.5.431 1.073.793 1.696 1.075.62.281 1.281.483 1.96.597.675.115 1.363.147 2.046.094.678-.05 1.348-.187 1.988-.406.64-.22 1.243-.52 1.79-.897.544-.376 1.027-.83 1.434-1.348a7.07 7.07 0 00.956-1.747c.221-.63.345-1.29.366-1.956.022-.666-.054-1.337-.228-1.987a7.014 7.014 0 00-.72-1.83c.5.22.978.48 1.428.78.447.297.864.637 1.244 1.016.378.376.716.79 1.006 1.238.29.446.53.927.716 1.434.185.507.316 1.04.388 1.582.073.54.09 1.09.052 1.635-.037.543-.127 1.08-.268 1.604-.14.52-.332 1.024-.57 1.502a8.8 8.8 0 01-.845 1.348c-.33.418-.706.793-1.12 1.117a8.18 8.18 0 01-1.375.84 8.6 8.6 0 01-1.576.545 9.15 9.15 0 01-1.716.218 9.3 9.3 0 01-1.73-.1 8.96 8.96 0 01-1.668-.445 9.12 9.12 0 01-1.537-.773 9.16 9.16 0 01-1.34-1.069 8.96 8.96 0 01-1.074-1.327 9.0 9.0 0 01-.752-1.537 8.9 8.9 0 01-.37-1.7 9.1 9.1 0 01-.036-1.81c.065-.597.193-1.185.38-1.75.187-.564.433-1.103.733-1.608.298-.504.648-.97 1.043-1.393.394-.42.833-.793 1.31-1.11.473-.317.98-.577 1.51-.773.528-.196 1.076-.33 1.632-.397.554-.066 1.114-.066 1.667.001.551.067 1.093.2 1.612.394.517.193 1.01.45 1.467.763.455.31.87.676 1.237 1.09.365.41.676.867.924 1.359.248.49.429 1.01.54 1.545.11.535.15 1.083.12 1.628-.032.543-.132 1.08-.298 1.6-.167.52-.401 1.018-.698 1.48a7.9 7.9 0 01-1.028 1.302 8.06 8.06 0 01-1.31 1.07 8.34 8.34 0 01-1.55.776 8.77 8.77 0 01-1.74.44c-.6.096-1.208.135-1.813.117a8.67 8.67 0 01-1.794-.265A8.28 8.28 0 016.4 21.2a8.0 8.0 0 01-1.42-1.019A7.88 7.88 0 013.83 18.9a7.8 7.8 0 01-.726-1.51 7.98 7.98 0 01-.348-1.67 8.3 8.3 0 01-.01-1.78c.08-.587.222-1.163.424-1.716.202-.552.462-1.082.774-1.576.31-.492.674-.947 1.082-1.355.406-.407.858-.765 1.346-1.068.486-.302 1.003-.549 1.539-.735C8.434 9.21 8.996 9.08 9.565 9.01c.568-.07 1.143-.08 1.714-.031.57.05 1.133.17 1.675.36.54.188 1.057.444 1.535.761.476.316.91.69 1.293 1.114.38.42.707.887.972 1.39.265.5.467 1.035.6 1.589.134.552.2 1.12.198 1.69-.003.568-.073 1.135-.208 1.686-.136.552-.337 1.085-.599 1.589-.263.503-.585.974-.96 1.4-.372.423-.793.8-1.253 1.12-.458.32-.954.582-1.476.78a8.5 8.5 0 01-1.659.43 8.87 8.87 0 01-1.75.074 8.67 8.67 0 01-1.718-.268 8.22 8.22 0 01-1.594-.677 7.96 7.96 0 01-1.393-1.064 7.87 7.87 0 01-1.1-1.41 7.95 7.95 0 01-.726-1.71 8.2 8.2 0 01-.255-1.95c.003-.666.077-1.33.22-1.98.14-.65.35-1.28.624-1.884.272-.6.607-1.168 1.001-1.69.392-.52.838-.993 1.333-1.408.49-.41 1.027-.764 1.598-1.048.567-.284 1.165-.5 1.78-.643.611-.143 1.237-.215 1.864-.215z"/></svg>
+      </div>
+      <div class="dl-btn-text">
+        <div class="dl-btn-label">Für Linux</div>
+        <div class="dl-btn-name">AppImage laden</div>
+        <div class="dl-btn-size">100 MB · Portable</div>
+      </div>
+    </a>
+  </div>
+
+  <p class="os-hint">Dein System wurde erkannt als: <span id="detected-os">Wird erkannt…</span></p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num" data-count="50">0</div>
+      <div class="stat-label">Tracker-Domains blockiert</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-num" data-count="100">0</div>
+      <div class="stat-label">MB App-Größe</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-num" data-count="6">0</div>
+      <div class="stat-label">Schnellthemen</div>
+    </div>
+    <div class="stat-divider"></div>
+    <div class="stat">
+      <div class="stat-num" data-count="100">0</div>
+      <div class="stat-label">% Kostenlos</div>
+    </div>
+  </div>
+
+  <div class="scroll-hint">
+    <span>Mehr entdecken</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+      <path d="M8 10.94L2.03 4.97a.75.75 0 0 0-1.06 1.06l6.5 6.5a.75.75 0 0 0 1.06 0l6.5-6.5a.75.75 0 1 0-1.06-1.06L8 10.94z"/>
+    </svg>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <p class="section-label">Was ihn besonders macht</p>
+  <h2 class="section-title">Gebaut für das moderne Web</h2>
+  <p class="section-sub">Kein Kompromiss zwischen Geschwindigkeit, Privatsphäre und Design.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v9.8z"/></svg>
+      </div>
+      <div class="feature-name">Tracker-Blocking</div>
+      <div class="feature-desc">Über 50 bekannte Tracking-Domains werden automatisch geblockt — Google Analytics, Facebook Pixel, Doubleclick, Hotjar und viele mehr. Dein Schild-Icon zählt in Echtzeit.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm4.5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3 3a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+      </div>
+      <div class="feature-name">Vollständig anpassbar</div>
+      <div class="feature-desc">Akzentfarbe, Hintergrundfarbe, Transparenz, Glassmorphismus-Stärke, eigenes Hintergrundbild und Custom CSS — alles direkt aus den Einstellungen steuerbar.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2zm0 15l-5-2.18L7 18V5h10v13z"/></svg>
+      </div>
+      <div class="feature-name">Lesezeichen-System</div>
+      <div class="feature-desc">Lesezeichen erscheinen direkt unter der Adressleiste und auf der New-Tab-Seite. Mit Ctrl+D hinzufügen, Rechtsklick zum Entfernen oder in neuem Tab öffnen.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+      </div>
+      <div class="feature-name">Schnellthemen</div>
+      <div class="feature-desc">Standard, Midnight, Rose, Ocean, Forest und Glassmorphism — mit einem Klick das komplette Design wechseln. Oder dein eigenes CSS schreiben.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm0 14H5V8h14v10z"/></svg>
+      </div>
+      <div class="feature-name">Multi-Tab Browsing</div>
+      <div class="feature-desc">Das Plus-Symbol sitzt immer direkt neben dem aktiven Tab. Schließen mit Ctrl+W, neuer Tab mit Ctrl+T. Tabs animieren sanft beim Öffnen und Schließen.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 4h12V6H6v2zm0 10h12v-8H6v8z"/></svg>
+      </div>
+      <div class="feature-name">Glassmorphismus-UI</div>
+      <div class="feature-desc">Alle Panels — Titelleiste, Tabs, Navbar, Bookmarksleiste, Statusleiste — können vollständig transparent und mit Blur-Effekt dargestellt werden.</div>
+    </div>
+  </div>
+
+  <p class="dl-note-bottom">
+    Unterstützt Windows 10/11 (64-bit) &amp; alle modernen Linux-Distributionen.<br/>
+    Linux: Anwendungsdatei ausführbar machen mit <code>chmod +x "Swixt.AppImage"</code>, danach doppelklicken.
+  </p>
+</section>
+
+<footer>
+  <p>Swixt Browser v1.0.0 &nbsp;·&nbsp; Gebaut mit Electron &nbsp;·&nbsp; Open Source</p>
+</footer>
+
+<script>
+/* ══ STARS CANVAS ══ */
+const canvas = document.getElementById('canvas-bg');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let W, H;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 160; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.2 + 0.2,
+      a: Math.random(),
+      speed: Math.random() * 0.3 + 0.05,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+initStars();
+
+let t = 0;
+function drawStars() {
+  ctx.clearRect(0, 0, W, H);
+  t += 0.008;
+  stars.forEach(s => {
+    const a = 0.15 + 0.25 * Math.sin(t * s.speed + s.phase);
+    ctx.beginPath();
+    ctx.arc(s.x, s.y + Math.sin(t * s.speed * 0.3 + s.phase) * 4, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(167,139,250,${a})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ══ OS DETECTION ══ */
+const ua = navigator.userAgent;
+const osEl = document.getElementById('detected-os');
+const btnWin = document.getElementById('btn-win');
+const btnLinux = document.getElementById('btn-linux');
+
+if (ua.includes('Windows')) {
+  osEl.textContent = 'Windows';
+  btnWin.classList.add('primary'); btnLinux.classList.remove('primary'); btnLinux.classList.add('secondary');
+} else if (ua.includes('Linux')) {
+  osEl.textContent = 'Linux';
+  btnLinux.classList.add('primary'); btnWin.classList.remove('primary'); btnWin.classList.add('secondary');
+} else if (ua.includes('Mac')) {
+  osEl.textContent = 'macOS (kein Build verfügbar)';
+} else {
+  osEl.textContent = 'Unbekannt';
+}
+
+/* ══ COUNTER ANIMATION ══ */
+function animateCount(el, target, duration = 2000) {
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 4);
+    el.textContent = Math.floor(ease * target) + (target === 100 ? '' : '+');
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target + (target < 100 ? '+' : (el.closest('.stat')?.querySelector('.stat-label')?.textContent.includes('%') ? '%' : '+'));
+  }
+  requestAnimationFrame(step);
+}
+
+/* ══ INTERSECTION OBSERVER (scroll reveal) ══ */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+
+      // Counter animation on stats
+      const counters = entry.target.querySelectorAll('[data-count]');
+      counters.forEach(c => {
+        animateCount(c, parseInt(c.dataset.count));
+      });
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll(
+  '.section-label, .section-title, .section-sub, .feature-card'
+).forEach(el => io.observe(el));
+
+// Also animate stats when hero comes in
+const statsEl = document.querySelector('.hero-stats');
+const statsIo = new IntersectionObserver(([entry]) => {
+  if (entry.isIntersecting) {
+    document.querySelectorAll('[data-count]').forEach(c => {
+      animateCount(c, parseInt(c.dataset.count));
+    });
+    statsIo.disconnect();
+  }
+}, { threshold: 0.5 });
+statsIo.observe(statsEl);
+
+/* ══ STAGGERED FEATURE CARDS ══ */
+document.querySelectorAll('.feature-card').forEach((card, i) => {
+  card.style.transitionDelay = (i * 0.08) + 's';
+});
+
+/* ══ MOUSE PARALLAX ORBS ══ */
+document.addEventListener('mousemove', e => {
+  const mx = (e.clientX / window.innerWidth  - 0.5) * 30;
+  const my = (e.clientY / window.innerHeight - 0.5) * 30;
+  document.querySelectorAll('.orb').forEach((orb, i) => {
+    const factor = (i + 1) * 0.3;
+    orb.style.transform += ` translate(${mx * factor}px, ${my * factor}px)`;
+  });
+});
+</script>
+</body>
+</html>
+
+```
